@@ -49,16 +49,25 @@ ISR (PCINT2_vect) {
   if (digitalRead(echoPin2) && !echoPin2State) {
     echoPin2State = !echoPin2State;
     interruptHandler(echoPin2State, 1);  
+  } else {
+    echoPin2State = !echoPin2State;
+    interruptHandler(echoPin2State, 1);
   }
 
   if (digitalRead(echoPin3) && !echoPin3State) {
     echoPin3State = !echoPin3State;
-    interruptHandler(echoPin3State, 2);  
+    interruptHandler(echoPin3State, 2);
+  } else {
+    echoPin3State = !echoPin3State;
+    interruptHandler(echoPin3State, 2);
   }
 
   if (digitalRead(echoPin4) && !echoPin4State) {
     echoPin4State = !echoPin4State;
-    interruptHandler(echoPin4State, 3);  
+    interruptHandler(echoPin4State, 3);
+  } else {
+    echoPin4State = !echoPin4State;
+    interruptHandler(echoPin4State, 3);
   }
 }
 
