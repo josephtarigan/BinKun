@@ -15,10 +15,7 @@ unsigned long lastPollMillis;
 unsigned long lastDebugMillis;
 
 // for pin states
-byte echoPin1State = LOW;
-byte echoPin2State = LOW;
-byte echoPin3State = LOW;
-byte echoPin4State = LOW;
+byte echoPinState[sensorCount];
 
 void setup() {
   // set group PCIIE2
@@ -34,53 +31,32 @@ void setup() {
     ; // Wait for Serial
   }
   Serial.println("--- Serial monitor started ---");
+
+  for (int i = 0; i < sensorCount; i++) {
+    echoPinState[i] = false;
+  }
 }
 
 // PCINT2
 ISR (PCINT2_vect) {
-  if (digitalRead(echoPin1) && !echoPin1State) {
-    echoPin1State = !echoPin1State;
-    interruptHandler(echoPin1State, 0);
-  } else {
-    echoPin1State = !echoPin1State;
-    interruptHandler(echoPin1State, 0);
-  }
-
-  if (digitalRead(echoPin2) && !echoPin2State) {
-    echoPin2State = !echoPin2State;
-    interruptHandler(echoPin2State, 1);  
-  } else {
-    echoPin2State = !echoPin2State;
-    interruptHandler(echoPin2State, 1);
-  }
-
-  if (digitalRead(echoPin3) && !echoPin3State) {
-    echoPin3State = !echoPin3State;
-    interruptHandler(echoPin3State, 2);
-  } else {
-    echoPin3State = !echoPin3State;
-    interruptHandler(echoPin3State, 2);
-  }
-
-  if (digitalRead(echoPin4) && !echoPin4State) {
-    echoPin4State = !echoPin4State;
-    interruptHandler(echoPin4State, 3);
-  } else {
-    echoPin4State = !echoPin4State;
-    interruptHandler(echoPin4State, 3);
-  }
+  interruptHandler(digitalRead(echoPin1), 0);
+  interruptHandler(digitalRead(echoPin2), 1); 
+  interruptHandler(digitalRead(echoPin3), 2);
+  interruptHandler(digitalRead(echoPin4), 3);
 }
 
 // Common function for interrupts
 void interruptHandler(bool pinState, int nIRQ) {
   unsigned long currentTime = micros();  // Get current time (in µs)
   
-  if (pinState) {
+  if (pinState && echoPinState[nIRQ] == false) {
     // If pin state has changed to HIGH -> remember start time (in µs)
     startTime[nIRQ] = currentTime;
-  } else {
+    echoPinState[nIRQ] = true;
+  } else if (!pinState && echoPinState[nIRQ] == true) {
     // If pin state has changed to LOW -> calculate time passed (in µs)
     travelTime[nIRQ] = currentTime - startTime[nIRQ];
+    echoPinState[nIRQ] = false;
   }
 }
 
